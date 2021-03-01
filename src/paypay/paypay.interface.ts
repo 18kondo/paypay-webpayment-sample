@@ -1,4 +1,4 @@
-import {ApiProperty, ApiPropertyOptional} from "@nestjs/swagger"
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export class CreateQrCodeBody {
   @ApiProperty({ example: 100, description: '金額' })
@@ -17,10 +17,10 @@ export class CreateQrCodePayload {
   codeType: 'ORDER_QR';
   orderDescription?: string;
   isAuthorization?: boolean;
+  authorizationExpiry?: number;
   redirectUrl?: string; // リダイレクト先のURL
   redirectType?: 'WEB_LINK';
 }
-
 
 export class CreateQrCodeResponse {
   resultInfo: {
@@ -66,9 +66,34 @@ export class DeleteQrCodeParams {
   codeId: string;
 }
 
-export class GetPaymentDetails {
+export class GetPaymentDetailsParams {
   @ApiProperty({ description: '加盟店発番のユニークな決済トランザクションID' })
   merchantPaymentId: string;
+}
+
+export class CapturePaymentAuthorizationBody {
+  @ApiProperty({ description: '加盟店発番のユニークな決済トランザクションID' })
+  merchantPaymentId: string;
+
+  @ApiProperty({ example: 100, description: '金額' })
+  amount: number;
+
+  @ApiPropertyOptional({ description: 'エポックタイムスタンプ（秒単位）' })
+  requestedAt?: number;
+
+  @ApiPropertyOptional({ description: 'キャプチャの説明' })
+  orderDescription?: string;
+}
+
+export class RevertPaymentAuthorizationBody {
+  @ApiProperty({ description: 'PayPay発番の決済トランザクションID' })
+  paymentId: string;
+
+  @ApiPropertyOptional({ description: 'エポックタイムスタンプ（秒単位）' })
+  requestedAt?: number;
+
+  @ApiPropertyOptional({ description: 'オプション' })
+  reason?: string;
 }
 
 export class RefundPaymentBody {

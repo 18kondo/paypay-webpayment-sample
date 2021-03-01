@@ -2,11 +2,13 @@ import { Injectable } from '@nestjs/common';
 import * as paypay from '@paypayopa/paypayopa-sdk-node';
 import { v4 as uuidv4 } from 'uuid';
 import {
+  CapturePaymentAuthorizationBody,
   CreateQrCodeBody,
   CreateQrCodePayload,
   CreateQrCodeResponse,
   RefundPaymentBody,
   RefundPaymentPayload,
+  RevertPaymentAuthorizationBody,
 } from './paypay.interface';
 
 @Injectable()
@@ -36,8 +38,33 @@ export class PaypayService {
       },
       codeType: 'ORDER_QR',
       orderDescription: body.orderDescription,
-      redirectUrl: `${this.FRONTEND_PATH}/${paymentId}`,
+      redirectUrl: `${this.FRONTEND_PATH}`,
       redirectType: 'WEB_LINK',
+    };
+
+    return new Promise<CreateQrCodeResponse>((resolve) => {
+      paypay.QRCodeCreate(payload, (paypayResponse: any) => {
+        console.log(paypayResponse);
+        resolve(paypayResponse);
+      });
+    });
+  }
+
+  createAuthorizationQrCode(
+    body: CreateQrCodeBody,
+  ): Promise<CreateQrCodeResponse> {
+    const paymentId = uuidv4();
+    const payload: CreateQrCodePayload = {
+      merchantPaymentId: paymentId,
+      amount: {
+        amount: body.amount,
+        currency: 'JPY',
+      },
+      codeType: 'ORDER_QR',
+      orderDescription: body.orderDescription,
+      redirectUrl: `${this.FRONTEND_PATH}`,
+      redirectType: 'WEB_LINK',
+      isAuthorization: true,
     };
 
     return new Promise<CreateQrCodeResponse>((resolve) => {
@@ -60,6 +87,41 @@ export class PaypayService {
   getPaymentDetails(merchantPaymentId: string) {
     return new Promise((resolve) => {
       paypay.GetPaymentDetails([merchantPaymentId], (paypayResponse: any) => {
+        console.log(paypayResponse);
+        resolve(paypayResponse);
+      });
+    });
+  }
+
+  capturePaymentAuthorization(body: CapturePaymentAuthorizationBody) {
+    const merchantCaptureId = uuidv4();
+    const payload = {
+      merchantPaymentId: body.merchantPaymentId,
+      amount: {
+        amount: body.amount,
+        currency: 'JPY',
+      },
+      merchantCaptureId,
+      orderDescription: body.orderDescription
+    };
+
+    return new Promise((resolve) => {
+      paypay.PaymentAuthCapture(payload, (paypayResponse: any) => {
+        console.log(paypayResponse);
+        resolve(paypayResponse);
+      });
+    });
+  }
+
+  revertPaymentAuthorization(body: RevertPaymentAuthorizationBody) {
+    const merchantRevertId = uuidv4();
+    const payload = {
+      merchantRevertId,
+      paymentId: body.paymentId,
+    };
+
+    return new Promise((resolve) => {
+      paypay.PaymentAuthRevert(payload, (paypayResponse: any) => {
         console.log(paypayResponse);
         resolve(paypayResponse);
       });

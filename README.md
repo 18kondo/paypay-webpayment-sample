@@ -35,3 +35,27 @@ $ npm run start:prod
 ローカルホストでサーバ起動中に閲覧可能
 
 http://localhost:3000/swagger
+
+## Webhook
+
+ngrok を使用して検証
+https://ngrok.com/
+
+### Install
+
+```sh
+$ brew install ngrok
+```
+
+### 実行
+
+```sh
+$ ngrok http 3000
+```
+
+Forwarding されたURLをPayPay内の `ダッシュボード > 設定 > 各Webhook` へ設定
+
+ex) http://XXXXXX.ngrok.io/paypay/webhook
+
+決済のステータスが変更されるとWebhookが実行される。
+https://www.paypay.ne.jp/opa/doc/jp/v1.0/dynamicqrcode#tag/Webhook
